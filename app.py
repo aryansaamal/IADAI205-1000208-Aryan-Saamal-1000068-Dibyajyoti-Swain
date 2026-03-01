@@ -41,8 +41,13 @@ st.markdown("""
 # =============================
 # SETUP - OpenRouter API
 # =============================
-OPENROUTER_API_KEY = "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"
-client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=OPENROUTER_API_KEY)
+import streamlit as st
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=st.secrets["OPENROUTER_API_KEY"]
+)
 
 @st.cache_data
 def load_data():
@@ -948,4 +953,5 @@ st.markdown("""
     <h3>🎓 CAPSTONE PROJECT </h3>
     <p><strong> | Hodophiler Sidebar ✅ | Feedback & Analytics ✅</strong></p>
 </div>
+
 """, unsafe_allow_html=True)
