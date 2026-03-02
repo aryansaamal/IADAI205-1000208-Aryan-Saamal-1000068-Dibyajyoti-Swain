@@ -41,13 +41,8 @@ st.markdown("""
 # =============================
 # SETUP - OpenRouter API
 # =============================
-import streamlit as st
-from openai import OpenAI
-
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=st.secrets["OPENROUTER_API_KEY"]
-)
+OPENROUTER_API_KEY = st.secrets["OPENROUTER_API_KEY"]
+client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=OPENROUTER_API_KEY)
 
 @st.cache_data
 def load_data():
@@ -183,51 +178,46 @@ def generate_consolidated_itinerary(row, profile, duration, language, interests,
 def create_pdf(text, row, rating, duration, language="English"):
     pdf = FPDF()
     pdf.add_page()
-    
+
     pdf.set_font("Arial", "B", 22)
     pdf.cell(0, 15, f"TravelAI Elite Guide ({language})", ln=True, align='C')
     pdf.set_font("Arial", "B", 16)
     pdf.cell(0, 12, f"{row['city']}, {row['country']}", ln=True, align='C')
     pdf.ln(8)
-    
+
     pdf.set_font("Arial", "", 12)
-    details = [f"Language: {language}", f"From: {row['country']}", f"Climate: {row['climate_label']}",
-               f"Daily Cost: ${row['avg_cost_usd_day']}", f"Rating: {row['avg_rating']}", f"Duration: {duration}"]
-    for detail in details: 
+    details = [
+        f"Language: {language}",
+        f"From: {row['country']}",
+        f"Climate: {row['climate_label']}",
+        f"Daily Cost: ${row['avg_cost_usd_day']}",
+        f"Rating: {row['avg_rating']}",
+        f"Duration: {duration}"
+    ]
+    for detail in details:
         pdf.cell(0, 8, detail, ln=True)
     pdf.ln(12)
-    
+
     safe_text = str(text).encode('latin-1', 'replace').decode('latin-1')
     pdf.set_font("Arial", "", 11)
     pdf.multi_cell(0, 6, safe_text)
-    
+
     pdf.ln(10)
     pdf.set_font("Arial", "B", 14)
     pdf.cell(0, 12, f"Your Rating: {rating}/5 Stars", ln=True, align='C')
-    
-    buffer = BytesIO()
-    pdf_output = pdf.output(dest='S')
-   # After generating pdf_output
-def create_pdf(result, best_spot, rating, duration, language):
-    buffer = BytesIO()
 
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
+    # ✅ FIXED: write to temp file then read back as clean bytes
+    import tempfile, os
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+        tmp_path = tmp.name
+    pdf.output(tmp_path)
+    with open(tmp_path, "rb") as f:
+        pdf_bytes = f.read()
+    os.remove(tmp_path)
 
-    # your PDF writing code here...
-
-    pdf_output = pdf.output(dest="S")
-
-    # 🔥 Fix goes here
-    if isinstance(pdf_output, str):
-        pdf_output = pdf_output.encode("utf-8")
-
-    buffer.write(pdf_output)
-
+    buffer = BytesIO(pdf_bytes)
     buffer.seek(0)
     return buffer
-
 def generate_cinematic_gif(spot, language, duration):
     import numpy as np
 
@@ -464,7 +454,7 @@ with st.sidebar:
         st.session_state.sidebar_messages = []
     
     # Display chat history
-    chat_container = st.container(height=400)
+    chat_container = st.container(height=150)
     with chat_container:
         for message in st.session_state.sidebar_messages[-8:]:  # Last 8 messages
             with st.chat_message(message["role"]):
@@ -543,7 +533,7 @@ with st.sidebar:
 # MAIN APP INTERFACE (SESSION STATE FIXED)
 # =============================
 st.markdown('<h1 class="main-title">✈️ TravelAI Premium</h1>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">AI-Powered Cultural Tourism | <strong>Hodophiler</strong> ready ➡️</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">AI-Powered Cultural Tourism | <strong>With Hodophiler(Your true companion for the perfect trip)</strong></p>', unsafe_allow_html=True)
 
 if not df.empty:
     tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
@@ -951,7 +941,6 @@ st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #64748b; padding: 2rem;'>
     <h3>🎓 CAPSTONE PROJECT </h3>
-    <p><strong> | Hodophiler Sidebar ✅ | Feedback & Analytics ✅</strong></p>
+    <p><strong> | ❤️A Journey to the Perfect Trip by Aryan & Dibyajyoti❤️ </strong></p>
 </div>
-
 """, unsafe_allow_html=True)
