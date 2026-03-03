@@ -303,8 +303,7 @@ Finalization included:
 TravelAI Premium became fully deployable.
 
 **Links: **
-Streamlit link - https://capstonedibyajyoti0018.streamlit.app/ 
-
+Streamlit link - https://iadai205-1000208-aryan-saamal-1000068-dibyajyoti-swain-inybbjx.streamlit.app/
 ---
 
 # 🧠 System Architecture
